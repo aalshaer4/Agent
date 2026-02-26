@@ -1,0 +1,83 @@
+pip install pyrogram tgcrypto
+
+
+from pyrogram import Client, filters, compose
+import asyncio
+
+# ==========================================
+# 1. إعدادات الحساب والبوت
+# ==========================================
+API_ID = 1234567  # استبدله بالـ API ID الخاص بك من my.telegram.org
+API_HASH = "your_api_hash_here" # استبدله بالـ API Hash
+BOT_TOKEN = "your_bot_token_here" # توكن البوت الخاص بك من BotFather
+
+# معرفات القنوات (يمكن أن تكون أسماء مستخدمين @username أو معرفات رقمية مثل -100xxxx)
+SOURCE_CHANNELS = ["@source_channel_1", "@source_channel_2"] 
+DESTINATION_CHANNEL = "@your_destination_channel"
+
+# ==========================================
+# 2. تهيئة العملاء (Clients)
+# ==========================================
+# عميل المستخدم: للقراءة من القنوات المصدرية (سيطلب رقم هاتفك في أول تشغيل)
+user_app = Client("my_user_session", api_id=API_ID, api_hash=API_HASH)
+
+# عميل البوت: للنشر في قناتك كمسؤول
+bot_app = Client("my_bot_session", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+
+# ==========================================
+# 3. دالة محاكاة الاتصال بـ OpenClaw
+# ==========================================
+async def process_with_openclaw(text):
+    """
+    هذه الدالة هي نقطة الربط مع OpenClaw.
+    حالياً تقوم بإرجاع نص بسيط، لاحقاً سنربطها بـ API الخاص بـ OpenClaw.
+    """
+    if not text:
+        return ""
+    
+    # هنا سيتم إرسال النص إلى OpenClaw وإرجاع الرد
+    processed_text = f"🤖 تم الصياغة بواسطة OpenClaw:\n\n{text}"
+    return processed_text
+
+
+# ==========================================
+# 4. مراقب الرسائل (Event Handler)
+# ==========================================
+@user_app.on_message(filters.chat(SOURCE_CHANNELS))
+async def forward_and_process(client, message):
+    # استخراج النص من الرسالة (سواء كانت نصية أو صورة/فيديو مع وصف)
+    original_text = message.text or message.caption
+    
+    if original_text:
+        # إرسال النص إلى OpenClaw لمعالجته
+        processed_text = await process_with_openclaw(original_text)
+        
+        # النشر في القناة الوجهة عبر البوت
+        try:
+            if message.photo:
+                # إذا كانت الرسالة صورة
+                await bot_app.send_photo(DESTINATION_CHANNEL, message.photo.file_id, caption=processed_text)
+            elif message.video:
+                # إذا كانت الرسالة فيديو
+                await bot_app.send_video(DESTINATION_CHANNEL, message.video.file_id, caption=processed_text)
+            else:
+                # إذا كانت رسالة نصية فقط
+                await bot_app.send_message(DESTINATION_CHANNEL, processed_text)
+                
+            print(f"✅ تم معالجة ونشر رسالة بنجاح!")
+        except Exception as e:
+            print(f"❌ حدث خطأ أثناء النشر: {e}")
+
+
+# ==========================================
+# 5. تشغيل السكريبت
+# ==========================================
+async def main():
+    print("🚀 جاري تشغيل النظام... بانتظار الرسائل الجديدة.")
+    # تشغيل عميل المستخدم وعميل البوت معاً
+    await compose([user_app, bot_app])
+
+if __name__ == "__main__":
+    # تشغيل الحلقة غير المتزامنة (Asynchronous Loop)
+    asyncio.run(main())
