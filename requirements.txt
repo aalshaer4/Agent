@@ -2,4 +2,7 @@ ccxt==4.2.14
 pandas==2.2.0
 pyrogram==2.0.106
 tgcrypto==1.2.5
+anthropic
 py_clob_client==1.0.3
+tgcrypto
+pyrogram
