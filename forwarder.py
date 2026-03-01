@@ -5,8 +5,8 @@ import asyncio
 # ==========================================
 # 1. إعدادات المفاتيح (تيليغرام و كلود)
 # ==========================================
-TELEGRAM_API_ID = 2051856681          # ضع الـ API_ID الخاص بتيليغرام
-TELEGRAM_API_HASH = "8475196624:AAH7D75Pxcgvehi_m8qqtkpvDMQEZcwzuzA"     # ضع الـ API_HASH الخاص بتيليغرام
+TELEGRAM_API_ID = 6
+TELEGRAM_API_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"     # ضع الـ API_HASH الخاص بتيليغرام
 CLAUDE_API_KEY = "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"      # ضع مفتاح Claude الخاص بك هنا
 
 # ==========================================
